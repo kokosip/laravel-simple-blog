@@ -14,9 +14,9 @@ class PostServices
         $this->postRepositories = $postRepositories;
     }
 
-    public function getListPost($search, $perPage)
+    public function getListPost($status, $perPage)
     {
-        $rows = $this->postRepositories->getListPost($search, $perPage);
+        $rows = $this->postRepositories->getListPost($status, $perPage);
 
         $pagination = [
             "current_page" => $rows->currentPage(),
