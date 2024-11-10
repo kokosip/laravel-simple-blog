@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\PostServices;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Repositories\PostRepositories;
 use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
     use ApiResponse;
-    protected $postService;
+    protected $postRepositories;
 
-    public function __construct(PostServices $postService)
+    public function __construct(PostRepositories $postRepositories)
     {
-        $this->postService = $postService;
+        $this->postRepositories = $postRepositories;
     }
 
     public function listPost(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'status' => 'required',
+            'status' => 'nullable',
             'per_page' => 'sometimes',
         ]);
 
@@ -29,10 +29,17 @@ class PostController extends Controller
         }
 
         $status = $request->input("status");
-        $perPage = is_null($request->input('per_page')) ? 10 : $request->input('per_page');
+        $perPage = is_null($request->input('per_page')) ? 5 : $request->input('per_page');
 
-        [$data, $metadata] = $this->postService->getListPost($status, $perPage);
-        
-        return $this->successResponse(data: $data, metadata: $metadata);
+        $data = $this->postRepositories->getListPost($status, $perPage);
+
+        return view('posts.index', ['posts' => $data]);
+    }
+
+    public function singlePost($id)
+    {
+        $data = $this->postRepositories->getSinglePost($id);
+
+        return view('posts.show', ['post' => $data]);
     }
 }
